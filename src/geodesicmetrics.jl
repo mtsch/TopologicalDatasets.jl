@@ -25,13 +25,16 @@ function GeodesicMetric(points::Vector, r1::Real, r2::Real; metric=Euclidean())
     tree = KDTree(SVector.(points), metric)
     for i in eachindex(new_points)
         for j in inrange(tree, SVector(points[i]), 2r2)
+            i == j && continue
             d = metric(SVector(points[i]), SVector(points[j]))
             append!(I, (i, j))
             append!(J, (j, i))
             append!(V, (d, d))
         end
     end
-    graph = SimpleWeightedGraph(sparse(I, J, V, length(new_points), length(new_points)))
+    graph = SimpleWeightedGraph(
+        sparse(I, J, V, length(new_points), length(new_points), min)
+    )
     dists = floyd_warshall_shortest_paths(graph).dists
 
     return GeodesicMetric(dists, graph, points)
