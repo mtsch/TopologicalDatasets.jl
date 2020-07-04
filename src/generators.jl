@@ -1,4 +1,4 @@
-    ###
+###
 ### Abstract
 ###
 
@@ -23,9 +23,9 @@ function StatsBase.sample(
     origin=ntuple(zero, I), svec=false, random=true
 ) where I
     if random
-        points = sample_rand(gen, n; kwargs...)
+        points = sample_rand(gen, n)
     else
-        points = sample_regular(gen, n; kwargs...)
+        points = sample_regular(gen, n)
     end
 
     if svec
@@ -35,7 +35,7 @@ function StatsBase.sample(
     end
 end
 
-function sample_rand(gen::AbstractGenerator{I}, n; kwargs...) where I
+function sample_rand(gen::AbstractGenerator{I}, n) where I
     points = Vector{eltype(gen)}(undef, n)
     for i in 1:n
         input = ntuple(_ -> rand(), I)
@@ -51,14 +51,14 @@ function sample_rand(gen::AbstractGenerator{I}, n; kwargs...) where I
     return points
 end
 
-@generated function sample_regular(gen::AbstractGenerator{I}, n; kwargs...) where I
+@generated function sample_regular(gen::AbstractGenerator{I}, n) where I
     quote
         k = round(Int, n^(1//$I))
         points = eltype(gen)[]
         i = 1
         @nloops $I j (_ -> range(0, 1, length=k+1)[1:end-1]) begin
             input = @ncall $I tuple j
-            p = gen(input...; kwargs...)
+            p = gen(input...)
             p !== nothing && push!(points, p)
         end
         return points
