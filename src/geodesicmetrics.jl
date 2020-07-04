@@ -1,3 +1,14 @@
+"""
+    GeodesicMetric
+
+Geodesic metric approximation.
+
+# Constructor
+
+`GeodesicMetric(points::Vector, r1::Real, r2::Real; metric=Euclidean())`
+
+todo explain.
+"""
 struct GeodesicMetric{T, D}
     dists::Matrix{T}
     graph::SimpleWeightedGraph{Int64, T}
