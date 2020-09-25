@@ -48,7 +48,7 @@ function GeodesicMetric(points::Vector, r1::Real, r2::Real; metric=Euclidean())
     )
     dists = floyd_warshall_shortest_paths(graph).dists
 
-    return GeodesicMetric(dists, graph, points)
+    return GeodesicMetric(dists, graph, new_points)
 end
 
 function Base.show(io::IO, gm::GeodesicMetric{T}) where T
@@ -94,3 +94,19 @@ points(gm::GeodesicMetric) = gm.points
         gm.points
     end
 end
+
+function distance_based_downsample(points, r1, metric=Euclidean())
+    points = shuffle(points)
+    tree = KDTree(SVector.(points), metric)
+
+    # Create a subsample of points r1 apart.
+    visited = falses(length(points))
+    new_points = eltype(points)[]
+    for i in eachindex(points)
+        visited[i] && continue
+        push!(new_points, points[i])
+        visited[inrange(tree, SVector(points[i]), r1)] .= true
+    end
+    return new_points
+end
+export distance_based_downsample

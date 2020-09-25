@@ -16,7 +16,7 @@ using StatsBase
 using Base: @kwdef
 
 export GeodesicMetric, distances, points
-export Ball, Cube, Klein, Knot, Noisy, Sphere, Torus, sample, ×
+export Ball, Cube, Klein, Knot, Noisy, Sphere, Torus, AsymTorus, sample, ×
 
 include("generators.jl")
 include("geodesicmetrics.jl")

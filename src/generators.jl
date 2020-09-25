@@ -124,6 +124,30 @@ function (t::Torus)(θ, φ)
 end
 
 """
+    AsymTorus <: AbstractGenerator{2, 3}
+
+Asymmetric torus with outer radius `r1` and inner radius `r2(t)`.
+
+# Constructor
+
+`Torus([; r1=2, r2=1])`
+"""
+struct AsymTorus{F} <: AbstractGenerator{2, 3}
+    r::Float64
+    f::F
+end
+
+AsymTorus(;r=3.0, f=t->2+sin(2π*t)) = AsymTorus{typeof(f)}(Float64(r), f)
+
+function (t::AsymTorus)(θ, φ)
+    r1 = t.r
+    θ *= 2π
+    r2 = t.f(φ)
+    φ *= 2π
+    return ((r1 + r2*cos(θ)) * cos(φ), (r1 + r2*cos(θ)) * sin(φ), r2*sin(θ))
+end
+
+"""
     Knot <: AbstractGenerator{1, 3}
 
 Torus knot parametrized as:
@@ -206,7 +230,7 @@ Cube(I, args...) = Cube{I}(args)
 Cube(I) = Cube{I}(ntuple(_ -> 1.0, I))
 
 function (c::Cube{I})(args::Vararg{<:Any, I}) where I
-    return args
+    return args .* c.rs
 end
 
 function Base.in(v, c::Cube{I}) where I
@@ -416,6 +440,7 @@ function Translated(gen::AbstractGenerator{I}, offset) where {I}
 end
 Base.:+(gen::AbstractGenerator, off::Union{AbstractVector, Tuple}) = Translated(gen, off)
 Base.:+(off::Union{AbstractVector, Tuple}, gen::AbstractGenerator) = Translated(gen, off)
+Base.:-(gen::AbstractGenerator, off::Union{AbstractVector, Tuple}) = gen + -1 .* off
 
 Base.show(io::IO, t::Translated) = print(io, "($(t.gen) + $(t.offset))")
 
